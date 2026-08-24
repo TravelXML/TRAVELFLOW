@@ -1,4 +1,4 @@
-# TravelFlow
+# TRAVELFLOW
 
 **AI-powered travel proposal and itinerary generation software for travel agents.**
 
