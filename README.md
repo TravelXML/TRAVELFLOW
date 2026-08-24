@@ -141,12 +141,13 @@ model - see `CABIN_CLASS_MULTIPLIER` in `flightProvider.ts` and
 
 <p align="center">
   <img src="./TravelFlow-08-24-2026_12_31_PM.png" width="48%" />
-  <img src="./TravelFlow-08-24-2026_12_32_PM.png" width="48%" />
+   <img src="./TravelFlow-08-24-2026_12_33_PM.png" width="48%" />  
 </p>
 
 <p align="center">
   <img src="./TravelFlow-08-24-2026_12_32_PM%20(1).png" width="48%" />
-  <img src="./TravelFlow-08-24-2026_12_33_PM.png" width="48%" />
+  <img src="./TravelFlow-08-24-2026_12_32_PM.png" width="48%" />
+  
 </p>
 
 ## Architecture
