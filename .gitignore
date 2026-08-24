@@ -1,0 +1,20 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.production
+*.log
+.DS_Store
+apps/api/prisma/dev.db
+apps/api/uploads/
+apps/api/generated/
+.turbo/
+coverage/
+
+# Internal planning docs used to build this project - not for the public
+# repo (the build prompt/architecture doc/pitch deck are pre-launch/internal
+# material and shouldn't be pushed to a remote git server).
+TravelFlow_Complete_Claude_Build_Prompt.md
+TravelFlow_Technical_Architecture.md.pdf
+TravelFlow_Pitch_Deck.pptx

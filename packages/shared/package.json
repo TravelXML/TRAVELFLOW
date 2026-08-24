@@ -1,0 +1,8 @@
+{
+  "name": "@travelflow/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared TypeScript types, imported by relative path from apps/api and apps/web (no build step).",
+  "main": "src/types.ts",
+  "types": "src/types.ts"
+}

@@ -1,0 +1,175 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  name     String
+
+  // Branding
+  brandingLogoUrl        String?
+  brandingPrimaryColor   String  @default("#1e90ff")
+  brandingSecondaryColor String  @default("#4ecdc4")
+  brandingAgencyName     String?
+
+  // Affiliate IDs
+  bookingComAffiliateId  String?
+  getYourGuideAffiliateId String?
+  skyscannerAffiliateId  String?
+
+  // Subscription
+  subscriptionTier        String    @default("starter") // starter, professional, elite
+  subscriptionStatus      String    @default("active")
+  subscriptionStartedAt   DateTime?
+  subscriptionNextBilling DateTime?
+
+  // Usage
+  proposalsMonthCount Int @default(0)
+  proposalsMonthLimit Int @default(50)
+
+  proposals     Proposal[]
+  trackingLinks TrackingLink[]
+  emails        Email[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([email])
+}
+
+model Proposal {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  customerName  String
+  customerEmail String
+
+  originName      String   @default("")
+  destinationName String
+  travelStartDate DateTime
+  travelEndDate   DateTime
+
+  // Travelers - children/ages and seniors matter for flight & hotel pricing
+  // (discounts) and for which activities are appropriate.
+  numAdults    Int   @default(1)
+  numChildren  Int   @default(0)
+  childrenAges Json? // number[]
+  numSeniors   Int   @default(0)
+
+  // Flight shape - each of these materially changes flightProvider's price.
+  tripType          String  @default("round_trip") // round_trip, one_way
+  cabinClass        String  @default("economy") // economy, premium_economy, business, first
+  directFlightsOnly Boolean @default(false)
+  preferredAirlines Json? // string[]
+
+  // Accommodation - tier/ambiance change which hotels are searched; distance
+  // and price-range filters narrow results; rooms multiply cost.
+  accommodationType       String   @default("mid_range") // budget, mid_range, luxury
+  numRooms                Int      @default(1)
+  hotelAmbiance           String   @default("any") // any, romantic, family, business, quiet, lively, luxury
+  maxDistanceFromCenterKm Int      @default(10)
+  maxDistanceFromAirportKm Int     @default(30)
+  priceRangeMin           Decimal?
+  priceRangeMax           Decimal?
+
+  // Trip style - shapes itinerary generation rather than price.
+  pace              String  @default("moderate") // relaxed, moderate, packed
+  specialOccasion   String  @default("none") // none, honeymoon, anniversary, birthday, family_reunion
+  dietaryRestrictions Json? // string[]
+  accessibilityNeeds  String?
+  specialRequests     String?
+
+  preferences Json?
+  budgetTotal Decimal?
+
+  itineraryJson      Json?
+  selectedFlight     Json?
+  selectedHotel      Json?
+  selectedActivities Json?
+  pdfUrl             String?
+
+  status       String    @default("draft") // draft, sent, opened, clicked, booked
+  sentAt       DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  bookedAt     DateTime?
+  bookingValue Decimal?
+
+  trackingLinks TrackingLink[]
+  email         Email?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model TrackingLink {
+  id         String   @id @default(cuid())
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  originalUrl String
+  shortUrl    String @unique
+
+  utmSource   String  @default("travelflow")
+  utmMedium   String  @default("proposal")
+  utmCampaign String?
+
+  affiliateProgram String? // booking, getyourguide, skyscanner
+  itemId           String?
+  itemType         String? // flight, hotel, activity
+  itemName         String?
+  itemPrice        Decimal?
+
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  revenue     Decimal  @default(0)
+
+  firstClickedAt DateTime?
+  lastClickedAt  DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([proposalId])
+  @@index([shortUrl])
+}
+
+model Email {
+  id         String   @id @default(cuid())
+  proposalId String   @unique
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  customerEmail    String
+  mailgunMessageId String?
+
+  trackingPixelId String    @unique
+  openCount       Int       @default(0)
+  firstOpenedAt   DateTime?
+  lastOpenedAt    DateTime?
+
+  sentAt         DateTime?
+  deliveryStatus String    @default("pending") // pending, delivered, failed
+  bounceReason   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([proposalId])
+  @@index([trackingPixelId])
+}
